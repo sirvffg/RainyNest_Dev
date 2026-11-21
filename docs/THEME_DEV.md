@@ -51,6 +51,7 @@ scripts/themes/<slug>/
 - 用 `theme.css` 提供全局样式。
 - 用 `templates/<name>.tsx` 覆盖 18 个系统模板，包括整体壳、首页、文章详情、归档、分类、标签、搜索、说说、友链、相册、404 等。
 - 用 `templates/plugins/<pluginSlug>/<name>.tsx` 覆盖插件自带模板。
+- 用 `theme.json` 的 `routes` + `templates/routes/<path>.tsx` 自带新前台页面（0.3.4 起），挂载在 `/t/<path>`，后台菜单手动填 URL 接入导航。
 - 通过 `assets/` 放图片、字体等静态文件，URL 统一为 `/themes/<slug>/...`。
 - 在构建期注册表模式下使用 `@/` 别名和 `'use client'` 客户端组件。
 
@@ -169,14 +170,45 @@ my-theme/
 │   ├── gallery.tsx            # 相册列表
 │   ├── photo.tsx              # 相册详情
 │   ├── error.tsx              # 404
-│   └── plugins/
-│       └── <pluginSlug>/
-│           └── <name>.tsx     # 覆盖插件模板
+│   ├── plugins/
+│   │   └── <pluginSlug>/
+│   │       └── <name>.tsx     # 覆盖插件模板
+│   └── routes/
+│       └── <path>.tsx         # 主题自定义路由页面（/t/<path>，可选）
 ├── assets/                    # 图片、字体等
 └── preview.png                # 后台预览图
 ```
 
 `templates/` 下的文件是覆盖式契约：文件存在才覆盖，不存在自动回退宿主内置模板。
+
+### 2.2.1 自定义前台路由（0.3.4 起，需 @rainynest/plugin-types >= 0.3.4）
+
+主题可自带宿主没有的前台页面（时间线、关于页等）：
+
+1. `theme.json` 声明：
+
+```json
+"routes": [
+  { "path": "timeline", "title": "时间线" }
+]
+```
+
+2. 模板文件 `templates/routes/timeline.tsx`（文件名 = path，单段路径，`^[a-z][a-z0-9-]*$`）：
+
+```tsx
+import type { ThemeRouteTemplateProps } from '@rainynest/plugin-types/theme';
+
+export default function TimelineTemplate({ site, config }: ThemeRouteTemplateProps) {
+  // site: TemplateSite（站点信息）；config: 当前主题合并后的配置
+}
+```
+
+3. 页面挂在 `/t/timeline`，自动套用主题 layout 壳；后台菜单管理中手动添加菜单项、URL 填 `/t/timeline`（与 Halo 一致，主题不自动注入菜单）。
+
+说明：
+
+- 未进入构建期注册表的新路由由运行时 esbuild 编译兜底（仅服务端 TSX，无 `@/` 别名与 `'use client'`），重启 dev / 重新 build 后完整支持。
+- 未声明的 `/t/<path>` 返回 404；`theme.routes` 为空或主题不兼容核心版本时整个 `/t/*` 均 404。
 
 ### 2.3 使用 `ext dev` 联调
 
@@ -359,6 +391,8 @@ export interface ThemeMeta {
   author?: string;
   preview?: string;
   minRainyNestVersion?: string;
+  maxRainyNestVersion?: string;
+  routes?: ThemeRouteDef[];
   supports: string[];
   configSchema: Record<string, ConfigGroup>;
 }
@@ -373,7 +407,9 @@ export interface ThemeMeta {
 | `description` | 否 | string | 后台展示描述。 |
 | `author` | 否 | string | 后台展示作者。 |
 | `preview` | 否 | string | 预览图。相对值会被规范化为 `/themes/<目录slug>/<相对值>`；绝对路径、`http(s)://`、`//` 开头的外链保持原样。 |
-| `minRainyNestVersion` | 否 | string | 当前代码只保存不校验，不会阻止安装或激活。 |
+| `minRainyNestVersion` | 否 | string | 最低核心版本要求（semver 区间或固定版本）。宿主加载与激活前校验，不满足的主题不可用（0.3.3 起生效）。 |
+| `maxRainyNestVersion` | 否 | string | 允许的最高核心版本（含），超出同样不可加载（0.3.4 起支持）。 |
+| `routes` | 否 | ThemeRouteDef[] | 主题自定义路由声明（0.3.4 起），见下方「自定义前台路由」。 |
 | `supports` | 建议 | string[] | 当前没有能力开关语义，仅作声明和展示。脚手架默认值：`posts`、`pages`、`moments`、`gallery`、`links`。 |
 | `configSchema` | 建议 | object | 后台设置表单与默认值合并依据。缺失时按空 schema 处理，主题没有可配置项。 |
 | 其他字段 | 否 | any | 会保留在 JSON 中，但宿主不读取。 |
@@ -546,6 +582,7 @@ export function configToCssVariables(config: ThemeConfig): Record<string, string
 
 - 文件名必须是 `^[a-z][a-z0-9-]*\.tsx$`。
 - 只扫描 `templates/` 第一层；`templates/foo/bar.tsx` 不会被识别为系统模板。
+- 自定义路由只识别 `templates/routes/<path>.tsx` 第一层，`<path>` 必须是 `^[a-z][a-z0-9-]*$`（单段路径）。
 - 插件覆盖只识别 `templates/plugins/<pluginSlug>/<name>.tsx`，且 `<pluginSlug>`、`<name>` 必须是 `^[a-z][a-z0-9-]*$`。
 - 每个模板文件必须有默认导出，导出可以是函数组件，也可以是带 `default` 的对象模块。
 - 模板可以 import 其他文件；构建期注册表支持相对路径和 `@/` 别名，运行时兜底不支持。

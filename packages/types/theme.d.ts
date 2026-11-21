@@ -235,6 +235,21 @@ export interface ErrorTemplateProps {
     title: string;
     message: string;
 }
+/** 主题自定义路由声明（theme.json 的 routes 字段，0.3.4 起支持） */
+export interface ThemeRouteDef {
+    /** 路由路径（相对 /t/ 前缀），如 "timeline" 对应 /t/timeline */
+    path: string;
+    /** 页面标题（generateMetadata 使用） */
+    title: string;
+    /** 保留字段：当前宿主统一 SSR 渲染（'use client' 组件由注册表支持水合），暂未实现客户端-only 加载 */
+    ssr?: boolean;
+}
+/** 主题自定义路由模板 Props（templates/routes/<name>.tsx） */
+export interface ThemeRouteTemplateProps {
+    site: TemplateSite;
+    /** 当前主题合并后的配置（configSchema 默认值 + 用户配置） */
+    config: Record<string, any>;
+}
 /** 模板名 → Props 映射，主题作者可据此实现对应模板 */
 export interface ThemeTemplateMap {
     layout: LayoutTemplateProps;
