@@ -1,0 +1,30 @@
+{
+  "specVersion": "1.0",
+  "slug": "related-posts",
+  "name": "相关文章",
+  "version": "1.0.1",
+  "description": "按共享标签数推荐相关文章，提供 REST 查询接口",
+  "author": "RainyNest Team",
+  "entry": "index.ts",
+  "permissions": [
+    {
+      "name": "plugin:related-posts:view",
+      "displayName": "查看相关文章",
+      "group": "插件"
+    }
+  ],
+  "configSchema": {
+    "basic": {
+      "label": "推荐设置",
+      "fields": {
+        "limit": {
+          "type": "number",
+          "default": 5,
+          "min": 1,
+          "max": 20,
+          "label": "默认推荐数量"
+        }
+      }
+    }
+  }
+}

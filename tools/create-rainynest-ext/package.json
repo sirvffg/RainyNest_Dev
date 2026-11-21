@@ -1,0 +1,19 @@
+{
+  "name": "create-rainynest-ext",
+  "version": "0.1.2",
+  "description": "RainyNest 扩展脚手架：npm create rainynest-ext my-plugin 生成插件/主题模板工程",
+  "bin": {
+    "create-rainynest-ext": "index.js"
+  },
+  "files": [
+    "index.js",
+    "templates/"
+  ],
+  "keywords": [
+    "rainynest",
+    "plugin",
+    "theme",
+    "scaffold"
+  ],
+  "license": "MIT"
+}

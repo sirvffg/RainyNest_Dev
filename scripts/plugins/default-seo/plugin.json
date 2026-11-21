@@ -1,0 +1,33 @@
+{
+  "specVersion": "1.0",
+  "slug": "default-seo",
+  "name": "SEO 助手",
+  "version": "1.0.1",
+  "description": "自动生成文章摘要 + OpenGraph/Twitter 元数据增强 + 站长平台验证标签",
+  "author": "RainyNest Team",
+  "entry": "index.ts",
+  "permissions": [
+    {
+      "name": "plugin:default-seo:view",
+      "displayName": "查看 SEO 助手",
+      "group": "插件"
+    }
+  ],
+  "configSchema": {
+    "basic": {
+      "label": "站点验证",
+      "fields": {
+        "googleVerification": {
+          "type": "text",
+          "default": "",
+          "label": "Google Search Console 验证码"
+        },
+        "baiduVerification": {
+          "type": "text",
+          "default": "",
+          "label": "百度站长平台验证码"
+        }
+      }
+    }
+  }
+}

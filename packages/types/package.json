@@ -1,0 +1,28 @@
+{
+  "name": "@rainynest/plugin-types",
+  "version": "0.3.2",
+  "description": "RainyNest 插件/主题扩展开发 SPI 类型定义（纯类型包，无运行时代码）",
+  "main": "./index.d.ts",
+  "types": "./index.d.ts",
+  "files": [
+    "index.d.ts",
+    "index.ts",
+    "theme.d.ts",
+    "theme.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "typescript": "^5.8.0"
+  },
+  "keywords": [
+    "rainynest",
+    "plugin",
+    "theme",
+    "types"
+  ],
+  "license": "MIT"
+}

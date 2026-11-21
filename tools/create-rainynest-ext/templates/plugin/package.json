@@ -1,0 +1,17 @@
+﻿{
+  "name": "__SLUG__",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RainyNest 插件 __SLUG__",
+  "scripts": {
+    "dev": "ext dev . --site http://localhost:3000",
+    "build": "ext build . -o dist",
+    "pack": "ext build . -o dist && ext pack dist"
+  },
+  "devDependencies": {
+    "@rainynest/ext": "^0.1.0",
+    "@rainynest/plugin-types": "^0.3.2",
+    "@types/react": "^19.1.0",
+    "typescript": "^5.8.0"
+  }
+}

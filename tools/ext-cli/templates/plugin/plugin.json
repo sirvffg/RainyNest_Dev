@@ -1,0 +1,21 @@
+{
+  "slug": "__SLUG__",
+  "name": "__SLUG__",
+  "version": "0.1.0",
+  "description": "插件描述",
+  "author": "",
+  "specVersion": "1.0",
+  "requiresCore": ">=1.0.0",
+  "entry": "index.ts",
+  "permissions": [],
+  "roleTemplates": [],
+  "database": { "enabled": false },
+  "configSchema": {
+    "basic": {
+      "label": "基础",
+      "fields": {
+        "enabled": { "type": "switch", "label": "启用", "default": true }
+      }
+    }
+  }
+}

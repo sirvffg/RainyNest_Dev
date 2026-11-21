@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@rainynest/plugin-types": ["./types/index.ts"]
+    }
+  },
+  "include": ["plugins/**/*.ts", "plugins/**/*.tsx", "themes/**/*.ts", "types/**/*.ts"]
+}

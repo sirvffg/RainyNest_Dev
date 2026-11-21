@@ -1,0 +1,24 @@
+{
+  "name": "@rainynest/ext",
+  "version": "0.1.2",
+  "description": "RainyNest 插件/主题开发 CLI：new / build / build-all / pack / dev",
+  "bin": { "ext": "bin/ext.js" },
+  "type": "commonjs",
+  "files": [
+    "bin/",
+    "lib/",
+    "templates/"
+  ],
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "esbuild": "^0.25.0"
+  },
+  "engines": { "node": ">=20" },
+  "keywords": [
+    "rainynest",
+    "plugin",
+    "theme",
+    "cli"
+  ],
+  "license": "MIT"
+}

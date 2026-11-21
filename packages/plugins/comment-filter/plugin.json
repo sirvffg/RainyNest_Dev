@@ -1,0 +1,35 @@
+{
+  "specVersion": "1.0",
+  "slug": "comment-filter",
+  "name": "评论过滤",
+  "version": "1.0.1",
+  "description": "垃圾评论自动审核：关键词与 IP 黑名单命中直接拒绝（beforeCommentApprove 扩展点）",
+  "author": "RainyNest Team",
+  "entry": "index.ts",
+  "permissions": [
+    {
+      "name": "plugin:comment-filter:view",
+      "displayName": "查看评论过滤",
+      "group": "插件"
+    }
+  ],
+  "configSchema": {
+    "basic": {
+      "label": "过滤规则",
+      "fields": {
+        "keywords": {
+          "type": "textarea",
+          "default": "",
+          "label": "关键词黑名单（逗号分隔）",
+          "placeholder": "示例：广告, 刷单, 贷款"
+        },
+        "ips": {
+          "type": "textarea",
+          "default": "",
+          "label": "IP 黑名单（逗号分隔）",
+          "placeholder": "示例：1.2.3.4, 10.0.0.5"
+        }
+      }
+    }
+  }
+}

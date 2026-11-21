@@ -1,0 +1,181 @@
+{
+  "specVersion": "1.0",
+  "slug": "default",
+  "name": "默认主题",
+  "version": "1.0.1",
+  "description": "RainyNest 预装默认主题：白底蓝调极简风，响应式设计",
+  "author": "RainyNest Team",
+  "preview": "preview.png",
+  "minRainyNestVersion": "1.0.0",
+  "supports": [
+    "dark-mode",
+    "custom-css",
+    "custom-js"
+  ],
+  "configSchema": {
+    "basic": {
+      "label": "基础外观",
+      "fields": {
+        "primaryColor": {
+          "label": "主色调",
+          "type": "color",
+          "default": "#3b82f6",
+          "description": "按钮、链接、高亮的主色"
+        },
+        "bgMode": {
+          "label": "背景模式",
+          "type": "radio",
+          "default": "light",
+          "options": [
+            {
+              "value": "light",
+              "label": "浅色"
+            },
+            {
+              "value": "dark",
+              "label": "深色"
+            },
+            {
+              "value": "auto",
+              "label": "跟随系统"
+            }
+          ]
+        },
+        "radiusStyle": {
+          "label": "圆角风格",
+          "type": "select",
+          "default": "rounded",
+          "options": [
+            {
+              "value": "sharp",
+              "label": "方正"
+            },
+            {
+              "value": "rounded",
+              "label": "标准"
+            },
+            {
+              "value": "pill",
+              "label": "圆润"
+            }
+          ]
+        },
+        "fontFamily": {
+          "label": "字体家族",
+          "type": "select",
+          "default": "inter",
+          "options": [
+            {
+              "value": "inter",
+              "label": "Inter（现代无衬线）"
+            },
+            {
+              "value": "noto-sc",
+              "label": "思源黑体"
+            },
+            {
+              "value": "serif",
+              "label": "衬线体（阅读舒适）"
+            },
+            {
+              "value": "mono",
+              "label": "等宽（极客风）"
+            }
+          ]
+        }
+      }
+    },
+    "layout": {
+      "label": "布局",
+      "fields": {
+        "sidebarPosition": {
+          "label": "侧边栏位置",
+          "type": "radio",
+          "default": "right",
+          "options": [
+            {
+              "value": "left",
+              "label": "左侧"
+            },
+            {
+              "value": "right",
+              "label": "右侧"
+            },
+            {
+              "value": "none",
+              "label": "无侧边栏"
+            }
+          ]
+        },
+        "postListStyle": {
+          "label": "文章列表样式",
+          "type": "radio",
+          "default": "card",
+          "options": [
+            {
+              "value": "card",
+              "label": "卡片"
+            },
+            {
+              "value": "list",
+              "label": "列表"
+            },
+            {
+              "value": "masonry",
+              "label": "瀑布流"
+            }
+          ]
+        },
+        "pageSize": {
+          "label": "每页文章数",
+          "type": "number",
+          "default": 12,
+          "min": 6,
+          "max": 30
+        },
+        "showToc": {
+          "label": "文章目录",
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "header": {
+      "label": "顶部导航",
+      "fields": {
+        "showSearch": {
+          "label": "显示搜索框",
+          "type": "boolean",
+          "default": true
+        },
+        "showAvatar": {
+          "label": "显示用户头像",
+          "type": "boolean",
+          "default": true
+        },
+        "logoUrl": {
+          "label": "Logo 图片",
+          "type": "image",
+          "description": "留空则使用站点标题文字"
+        }
+      }
+    },
+    "advanced": {
+      "label": "高级",
+      "fields": {
+        "customCss": {
+          "label": "自定义 CSS",
+          "type": "textarea",
+          "language": "css",
+          "description": "会注入到所有页面的 <style> 标签中"
+        },
+        "customJs": {
+          "label": "自定义 JS",
+          "type": "textarea",
+          "language": "javascript",
+          "description": "会注入到 </body> 之前"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "specVersion": "1.0",
+  "slug": "code-highlight",
+  "name": "代码高亮增强",
+  "version": "1.0.1",
+  "description": "高亮行区间语法 ```lang{1,3-5} 转 Expressive Code 标准写法 + 主题微调样式",
+  "author": "RainyNest Team",
+  "entry": "index.ts",
+  "permissions": [
+    {
+      "name": "plugin:code-highlight:view",
+      "displayName": "查看代码高亮增强",
+      "group": "插件"
+    }
+  ],
+  "configSchema": {
+    "basic": {
+      "label": "样式微调",
+      "fields": {
+        "borderRadius": {
+          "type": "text",
+          "default": "12px",
+          "label": "代码块圆角"
+        }
+      }
+    }
+  }
+}

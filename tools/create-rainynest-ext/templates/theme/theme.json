@@ -1,0 +1,26 @@
+{
+  "slug": "__SLUG__",
+  "name": "__SLUG__",
+  "version": "0.1.0",
+  "description": "主题描述",
+  "author": "",
+  "specVersion": "1.0",
+  "minRainyNestVersion": ">=1.0.0",
+  "preview": "preview.png",
+  "supports": ["posts", "pages", "moments", "gallery", "links"],
+  "configSchema": {
+    "basic": {
+      "label": "基础",
+      "fields": {
+        "accentColor": { "type": "color", "label": "强调色", "default": "#3b82f6" }
+      }
+    },
+    "advanced": {
+      "label": "高级",
+      "fields": {
+        "customCss": { "type": "textarea", "label": "自定义 CSS", "default": "" },
+        "customJs": { "type": "textarea", "label": "自定义 JS", "default": "" }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@rainynest/extensions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RainyNest 内置插件与主题开发项目（独立于主项目，自带 node_modules 与类型）",
+  "scripts": {
+    "build": "node ../tools/ext-cli/bin/ext.js build-all --src . --out ../scripts",
+    "typecheck": "tsc --noEmit",
+    "pack": "node ../tools/ext-cli/bin/ext.js pack",
+    "dev": "node ../tools/ext-cli/bin/ext.js dev"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "typescript": "^5.8.0"
+  }
+}

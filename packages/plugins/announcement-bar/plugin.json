@@ -1,0 +1,51 @@
+{
+  "specVersion": "1.0",
+  "slug": "announcement-bar",
+  "name": "公告栏",
+  "version": "1.0.0",
+  "entry": "index.ts",
+  "description": "站点公告示例：顶栏入口 / 页脚公告 / 仪表盘快捷操作 / API 响应头 / 可选通知器（0.3.0 新 SPI 演示）",
+  "author": "RainyNest Team",
+  "permissions": [
+    {
+      "name": "plugin:announcement-bar:view",
+      "displayName": "查看公告栏",
+      "group": "插件"
+    }
+  ],
+  "configSchema": {
+    "basic": {
+      "label": "公告设置",
+      "fields": {
+        "enabled": {
+          "type": "switch",
+          "default": true,
+          "label": "启用公告"
+        },
+        "message": {
+          "type": "textarea",
+          "default": "欢迎来到 RainyNest！",
+          "label": "公告内容",
+          "placeholder": "支持纯文本，注入页脚时会自动转义"
+        },
+        "link": {
+          "type": "text",
+          "default": "",
+          "label": "公告链接",
+          "placeholder": "https://example.com 或 /about"
+        },
+        "linkText": {
+          "type": "text",
+          "default": "查看详情",
+          "label": "链接文字"
+        },
+        "useNotifier": {
+          "type": "switch",
+          "default": false,
+          "label": "启用示例通知器",
+          "help": "开启后由本插件接管通知发送（示例仅记录日志）；关闭则使用宿主默认邮件通知"
+        }
+      }
+    }
+  }
+}

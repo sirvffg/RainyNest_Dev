@@ -1,0 +1,16 @@
+{
+  "specVersion": "1.0",
+  "slug": "sitemap-enhance",
+  "name": "Sitemap 增强",
+  "version": "1.0.1",
+  "description": "完整 sitemap.xml 输出：文章 / 分类 / 标签 / 相册全覆盖（核心 sitemap 的超集）",
+  "author": "RainyNest Team",
+  "entry": "index.ts",
+  "permissions": [
+    {
+      "name": "plugin:sitemap-enhance:view",
+      "displayName": "查看 Sitemap 增强",
+      "group": "插件"
+    }
+  ]
+}
