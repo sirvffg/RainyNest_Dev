@@ -59,7 +59,7 @@ export default function createPlugin(ctx: PluginContext): ExtensionHandlers {
 | 不能直接读取其他插件的 JSON 或 SQLite 数据库 | 宿主没有跨插件数据 API；只能通过文件系统绕过（不推荐，且卸载语义不确定） |
 | 不能在运行时安装 npm 依赖 | 入口由 esbuild 打包，依赖必须打进产物或在 externals 白名单中 |
 | 不能使用任意原生模块 | CLI 产物扫描禁止 `.node`；宿主仅保证 `better-sqlite3` 等白名单模块可用 |
-| 不能注册事件监听器 | `ctx.emitEvent` 只负责广播，宿主未暴露订阅 API |
+| 可以注册事件监听器 | 0.3.3 起 `ctx.events.on/once/off` 订阅进程内事件总线；插件卸载/重载时监听器自动清理 |
 | 不能声明定时任务 | SPI 无 cron/后台任务扩展点；可用外部系统调用 `customApi` |
 | 不能声明核心版本上限 | 只支持 `requiresCore` 下限/区间要求，不支持声明“仅在核心 x 以下可用” |
 | 不能依赖扩展点声明中的 `permissions` 做前台鉴权 | 权限过滤只作用于后台 Console 扩展点；公开前台注入（如 `injectHeaderAction`）不按权限过滤，见 4.9 |
@@ -762,6 +762,7 @@ export interface PluginContext {
   env: Record<string, string | undefined>;
   logger: PluginLogger;
   emitEvent: (name: string, data: unknown) => void;
+  events: PluginEventBus;   // 0.3.3 起：on / once / off
 }
 ```
 
@@ -777,7 +778,8 @@ export interface PluginContext {
 | `site` | 完整站点设置对象；类型只声明了 `id/title/description/keywords` 与索引签名，实际字段以 `SiteSetting` 为准，如 `url`、`email`、`smtpHost` |
 | `env` | `process.env` 引用 |
 | `logger` | 前缀 `[Plugin:<slug>]` 的 `console` 封装 |
-| `emitEvent` | 向进程内 `Map` 广播；当前没有注册监听器的公开 API |
+| `emitEvent` | 发布事件（同步派发） |
+| `events` | 订阅事件：`on`（返回取消函数）、`once`（自动移除）、`off`；仅能清理本插件注册的监听 |
 
 `pluginDb` 使用 `Proxy`，只有访问属性时才调用 `getPluginDb(slug)`。因此不使用数据库的插件不会生成空 `.db` 文件。
 
@@ -2034,6 +2036,8 @@ interface ApiMiddlewareDef {
     req: Request,
     next: () => Promise<Response>
   ) => Response | void | Promise<Response | void>;
+  critical?: boolean;   // 0.3.3 起：安全策略中间件，自身失败时默认拒绝请求
+  timeout?: number;     // 0.3.3 起：单个中间件超时毫秒数，默认 10000
 }
 ```
 
@@ -2059,12 +2063,15 @@ interface ApiMiddlewareDef {
 | `Response` | 立即作为最终响应，后续中间件与原接口都不执行 |
 | `undefined` / `null` | 自动进入下一环 |
 | 调用并 `await next()` 后返回其结果 | 正常链式放行 |
-| 调用 `next()` 后不返回该结果 | 宿主会再次调用下一环，可能重复执行 |
+| 调用 `next()` 后不返回该结果 | 宿主复用链上结果，不会重复执行（0.3.3 起） |
+| 再次调用 `next()`（第二次） | 抛错，按中间件失败策略处理（0.3.3 起） |
 
-失败：
+失败（0.3.3 起）：
 
-- 任一中间件抛错会使整个链中止，`pluginApiGate` 捕获后返回 `null`，原接口继续执行。
-- 这是 fail-open 行为，不能把安全策略只放在中间件里。
+- 普通中间件抛错 / 超时 / 重复调用 `next()`：记录日志并继续链（fail-open）。
+- `critical: true` 中间件失败：返回 503 拒绝请求（fail-closed），适合安全策略场景。
+- 单个中间件默认 10s 超时，`timeout` 字段可覆盖。
+- 引擎级失败（插件整体加载异常）仍为放行并记录日志。
 
 204：
 
@@ -3223,7 +3230,7 @@ ctx.pluginDb
 - 不要假设其他插件不会读写主库。
 - 不要把私有数据放在主库的通用表中而不加前缀。
 - 需要严格隔离时使用独立 SQLite，并在表名与 slug 上保持唯一。
-- 插件间没有正式通信 API；`emitEvent` 没有订阅端。
+- 插件间可通过事件总线通信：0.3.3 起 `ctx.emitEvent` 发布、`ctx.events.on` 订阅（进程内，重启即失效）。
 
 ---
 
@@ -3360,7 +3367,7 @@ async handler(req, next) {
 | `customApi` handler 抛错 | 500 |
 | `customApi` 鉴权抛错 | 未捕获时由 Next 返回 500 |
 
-因此 `apiMiddleware` 是 fail-open。不要把“必须阻止”的安全策略只放在这里。
+普通中间件失败时 `apiMiddleware` 仍为 fail-open；需要“必须阻止”的安全策略请声明 `critical: true`（失败返回 503），见 6.6.1。
 
 ### 8.7 已覆盖路由清单
 
@@ -4865,13 +4872,13 @@ import type {
 
 | 类型 | 关键字段 |
 | --- | --- |
-| `PluginContext` | `db`、`analytics`、`pluginDb`、`pluginJson`、`slug`、`version`、`config`、`site`、`env`、`logger`、`emitEvent` |
+| `PluginContext` | `db`、`analytics`、`pluginDb`、`pluginJson`、`slug`、`version`、`config`、`site`、`env`、`logger`、`emitEvent`、`events`（0.3.3 起） |
 | `PluginMeta` | `slug`、`name`、`version`、`entry`、`permissions`、`roleTemplates`、`database`、`configSchema`、`specVersion`、`requiresCore`、`native` |
 | `SearchProvider` | `name`、`builtIn?`、`search` |
 | `AttachmentStorageProvider` | `name`、`upload`、`delete?` |
 | `PluginNotifier` | `name`、`send` |
 | `CustomApiRouteDef` | `method`、`path`、`handler`、`auth` |
-| `ApiMiddlewareDef` | `path?`、`methods?`、`handler` |
+| `ApiMiddlewareDef` | `path?`、`methods?`、`handler`、`critical?`、`timeout?` |
 | `SidebarWidgetDef` | `title?`、`component`、`order?` |
 | `HeaderActionDef` | `key`、`label`、`icon?`、`href?`、`order?`、`permissions?` |
 | `DashboardWidgetDef` | `title`、`icon?`、`component`、`permissions?`、`colSpan?` |
@@ -5037,7 +5044,7 @@ import type {
     - 无动态段、无尾斜杠容错。
 
 31. **`apiMiddleware` fail-open**
-    - 抛错即放行。
+    - 普通中间件抛错即放行；`critical: true` 中间件失败返回 503（0.3.3 起）。
 
 32. **`apiMiddleware` 覆盖范围有限**
     - 仅 8 个路由，见 8.7。

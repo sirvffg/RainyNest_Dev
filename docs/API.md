@@ -119,11 +119,14 @@ interface ApiMiddlewareDef {
   path?: string;   // 路径前缀，如 '/api/posts'；留空匹配全部
   methods?: ('GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE')[];
   handler: (req: Request, next: () => Promise<Response>) => Response | void | Promise<Response | void>;
+  critical?: boolean; // 0.3.3 起：安全策略中间件，自身失败时返回 503 拒绝请求
+  timeout?: number;   // 0.3.3 起：单个中间件超时毫秒数，默认 10000
 }
 ```
 
-- 返回 `Response` 表示拦截；返回 `void` / 调用 `next()` 表示继续。
-- 网关自身异常会被吞掉并返回 `null`，不阻断主流程。
+- 返回 `Response` 表示拦截；返回 `void` / 调用 `next()` 表示继续（`next()` 只能调用一次，重复调用按失败策略处理）。
+- 普通中间件异常 / 超时：记录日志并继续链；`critical: true` 中间件失败：返回 503（0.3.3 起）。
+- 网关引擎级异常仍返回 `null` 放行并记录日志，不阻断主流程。
 - 当前被网关覆盖的接口已在各小节标注「插件网关」。
 
 ### 1.10 数据库与 Prisma 字段
@@ -3720,10 +3723,12 @@ export interface ApiMiddlewareDef {
   path?: string;   // 路径前缀，如 /api/posts；留空表示全部 API
   methods?: ('GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE')[];
   handler: (req: Request, next: () => Promise<Response>) => Response | void | Promise<Response | void>;
+  critical?: boolean; // 0.3.3 起：安全策略中间件，失败返回 503
+  timeout?: number;   // 0.3.3 起：超时毫秒数，默认 10000
 }
 ```
 
-`handler` 返回 `Response` 即拦截；返回 `void` 或调用 `next()` 继续执行原逻辑。中间件内部抛错会被 `pluginApiGate` 捕获并忽略，不影响主流程。
+`handler` 返回 `Response` 即拦截；返回 `void` 或调用 `next()` 继续执行原逻辑（`next()` 单次调用受控，重复调用不会导致后续中间件重复执行）。普通中间件内部抛错 / 超时只记日志并继续链；`critical: true` 中间件失败返回 503 拒绝请求（0.3.3 起）。
 
 ### 8.3 插件编辑器动作
 

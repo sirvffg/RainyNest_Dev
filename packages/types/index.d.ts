@@ -38,6 +38,15 @@ export interface PluginLogger {
     warn: (...args: unknown[]) => void;
     error: (...args: unknown[]) => void;
 }
+/** 宿主事件总线订阅接口；事件名用命名空间风格，如 'post.created'，插件自身事件建议加 <slug>. 前缀 */
+export interface PluginEventBus {
+    /** 订阅事件；返回取消订阅函数 */
+    on: (name: string, handler: (data: unknown) => void) => () => void;
+    /** 一次性订阅：触发一次后自动移除 */
+    once: (name: string, handler: (data: unknown) => void) => () => void;
+    /** 取消订阅；省略 handler 时移除本插件对该事件的全部监听 */
+    off: (name: string, handler?: (data: unknown) => void) => void;
+}
 export interface PluginContext {
     db: HostPrismaClient;
     analytics: HostPrismaClient;
@@ -50,6 +59,8 @@ export interface PluginContext {
     env: Record<string, string | undefined>;
     logger: PluginLogger;
     emitEvent: (name: string, data: unknown) => void;
+    /** 订阅宿主/其他插件事件（0.3.3 起支持）；插件卸载/重载时监听器自动清理 */
+    events: PluginEventBus;
 }
 export interface BeforeSavePostMeta {
     patch?: Record<string, any>;
@@ -126,8 +137,15 @@ export interface ApiMiddlewareDef {
     path?: string;
     /** 限定方法；缺省为全部 */
     methods?: ('GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE')[];
-    /** 返回 Response 表示拦截；返回 void / next() 继续 */
+    /** 返回 Response 表示拦截；返回 void / next() 继续（next() 只能调用一次） */
     handler: (req: Request, next: () => Promise<Response>) => Response | void | Promise<Response | void>;
+    /**
+     * 安全策略标记（0.3.3 起支持）：critical 中间件自身抛错/超时/重复调用 next() 时
+     * 宿主返回 503 拒绝请求（默认拒绝）；普通中间件失败仅记录日志并放行
+     */
+    critical?: boolean;
+    /** 单个中间件超时毫秒数（0.3.3 起支持）；缺省 10000 */
+    timeout?: number;
 }
 export interface AttachmentUploadInput {
     filename: string;
